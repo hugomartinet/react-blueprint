@@ -4,12 +4,14 @@ import { Line } from './types'
 
 interface LineStore {
   lines: Line[]
+  setLines: (lines: Line[]) => void
   createLine: (nodeIds: [string, string]) => void
   replaceNodeIdInLines: (oldNodeId: string, newNodeId: string) => void
 }
 
 export const useLineStore = create<LineStore>(set => ({
   lines: [],
+  setLines: lines => set({ lines }),
   createLine: nodeIds => {
     const line = { id: nanoid(), nodeIds }
     set(state => ({ lines: [...state.lines, line] }))

@@ -1,20 +1,11 @@
-import { useCallback, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useStartDrawingLine, useStopDrawingLine } from '../line/hooks'
 import { useModeStore } from '../mode/store'
 import { Mode } from '../mode/types'
 import { useUpdateNodePositions } from '../node/hooks'
-import { useSceneStore } from '../scene/store'
-
-function useGetEventPosition() {
-  const x = useSceneStore(state => state.position.x)
-  const y = useSceneStore(state => state.position.y)
-  const scale = useSceneStore(state => state.scale)
-
-  return useCallback((event: MouseEvent) => ({ x: (event.x - x) / scale, y: (event.y - y) / scale }), [x, y, scale])
-}
+import { getEventPosition } from './utils'
 
 export function useMouseDownEventListeners() {
-  const getEventPosition = useGetEventPosition()
   const mode = useModeStore(state => state.mode)
   const setMode = useModeStore(state => state.setMode)
 
@@ -24,14 +15,13 @@ export function useMouseDownEventListeners() {
   useEffect(() => {
     function onMouseDown(event: MouseEvent): void {
       if (mode === Mode.IDLE) {
-        const position = getEventPosition(event)
         setMode(Mode.DRAW)
-        startDrawingLine(position)
+        startDrawingLine(getEventPosition(event))
       }
     }
     window.addEventListener('mousedown', onMouseDown)
     return () => window.removeEventListener('mousedown', onMouseDown)
-  }, [mode, setMode, startDrawingLine, getEventPosition])
+  }, [mode, setMode, startDrawingLine])
 
   useEffect(() => {
     function onMouseDown(): void {
@@ -46,7 +36,6 @@ export function useMouseDownEventListeners() {
 }
 
 export function useMouseMoveEventListeners() {
-  const getEventPosition = useGetEventPosition()
   const mode = useModeStore(state => state.mode)
 
   const updateNodePosition = useUpdateNodePositions()
@@ -54,11 +43,10 @@ export function useMouseMoveEventListeners() {
   useEffect(() => {
     function onMouseMove(event: MouseEvent) {
       if (mode === Mode.DRAW) {
-        const position = getEventPosition(event)
-        updateNodePosition(position)
+        updateNodePosition(getEventPosition(event))
       }
     }
     window.addEventListener('mousemove', onMouseMove)
     return () => window.removeEventListener('mousemove', onMouseMove)
-  }, [mode, updateNodePosition, getEventPosition])
+  }, [mode, updateNodePosition])
 }

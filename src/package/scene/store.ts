@@ -1,18 +1,14 @@
 import { create } from 'zustand'
-import { Position } from '../geometry/types'
+import { Scene } from './types'
 
 interface SceneStore {
   width: number
   height: number
-  position: Position
-  scale: number
-  setView: (position: Position, scale: number) => void
+  setScene: (scene: Scene) => void
 }
 
 export const useSceneStore = create<SceneStore>(set => ({
-  width: 1000,
-  height: 1000,
-  position: { x: 0, y: 0 },
-  scale: 1,
-  setView: (position, scale) => set({ position, scale }),
+  width: 10000,
+  height: 10000,
+  setScene: scene => set({ width: scene.width, height: scene.height }),
 }))

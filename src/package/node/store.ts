@@ -5,6 +5,7 @@ import { Node } from './types'
 
 interface NodeStore {
   nodes: Node[]
+  setNodes: (nodes: Node[]) => void
   createNode: (position: Position) => Node
   updateNode: (id: string, position: Position) => void
   deleteNode: (id: string) => void
@@ -12,6 +13,7 @@ interface NodeStore {
 
 export const useNodeStore = create<NodeStore>(set => ({
   nodes: [],
+  setNodes: nodes => set({ nodes }),
   createNode: position => {
     const node = initNode(position)
     set(state => ({ nodes: [...state.nodes, node] }))

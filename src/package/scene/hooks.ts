@@ -1,22 +1,31 @@
 import { MutableRefObject, useEffect } from 'react'
-import { useTransformEffect } from 'react-zoom-pan-pinch'
+import { useTransformInit } from 'react-zoom-pan-pinch'
+import { useLineStore } from '../line/store'
+import { useNodeStore } from '../node/store'
 import { useSceneStore } from './store'
+import { Scene } from './types'
+import { calculateCenteredView } from './utils'
 
-export function useSceneTransformationListener(blueprintRef: MutableRefObject<HTMLDivElement | null>) {
-  const setView = useSceneStore(state => state.setView)
+export function useLoadScene(scene: Scene | undefined, blueprintRef: MutableRefObject<HTMLDivElement | null>) {
+  const setScene = useSceneStore(state => state.setScene)
+  const setNodes = useNodeStore(state => state.setNodes)
+  const setLines = useLineStore(state => state.setLines)
 
   useEffect(() => {
-    setView({ x: blueprintRef.current?.offsetLeft ?? 0, y: blueprintRef.current?.offsetTop ?? 0 }, 1)
+    if (scene) {
+      setScene(scene)
+      setNodes(scene.nodes)
+      setLines(scene.lines)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  useTransformEffect(({ state }) => {
-    setView(
-      {
-        x: state.positionX + (blueprintRef.current?.offsetLeft ?? 0),
-        y: state.positionY + (blueprintRef.current?.offsetTop ?? 0),
-      },
-      state.scale,
+  useTransformInit(ref => {
+    const transformState = calculateCenteredView(
+      scene,
+      blueprintRef.current?.offsetWidth,
+      blueprintRef.current?.offsetHeight,
     )
+    if (transformState) ref.instance.setTransformState(transformState.scale, transformState.x, transformState.y)
   })
 }

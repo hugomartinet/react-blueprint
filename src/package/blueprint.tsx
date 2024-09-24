@@ -1,20 +1,22 @@
 import { useRef } from 'react'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 import { Scene } from './scene/scene'
+import { Scene as SceneType } from './scene/types'
 
 interface BlueprintProps {
   width?: number
   height?: number
+  initialScene?: SceneType
 }
 
-export function Blueprint({ width, height }: BlueprintProps) {
+export function Blueprint({ width, height, initialScene }: BlueprintProps) {
   const ref = useRef<HTMLDivElement>(null)
 
   return (
-    <div ref={ref} style={{ width, height, overflow: 'hidden' }}>
-      <TransformWrapper limitToBounds={false}>
-        <TransformComponent wrapperStyle={{ flex: 1, backgroundColor: '#e2e8f0' }}>
-          <Scene blueprintRef={ref} />
+    <div ref={ref} style={{ flex: 1, width, height, overflow: 'hidden' }}>
+      <TransformWrapper minScale={0.2} limitToBounds={false}>
+        <TransformComponent wrapperStyle={{ flex: 1, backgroundColor: '#2D3748' }}>
+          <Scene initialScene={initialScene} blueprintRef={ref} />
         </TransformComponent>
       </TransformWrapper>
     </div>
