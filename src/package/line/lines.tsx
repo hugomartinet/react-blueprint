@@ -1,4 +1,5 @@
 import { useNodeStore } from '../node/store'
+import { Colors } from '../theme'
 import { useLineStore } from './store'
 
 export function Lines() {
@@ -14,7 +15,7 @@ export function Lines() {
         return (
           <line
             key={line.id}
-            stroke="#000000"
+            stroke={Colors.gray}
             strokeWidth={2}
             x1={node0.position.x}
             y1={node0.position.y}
