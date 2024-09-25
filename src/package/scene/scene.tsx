@@ -2,6 +2,7 @@ import { MutableRefObject } from 'react'
 import { Grid } from '../grid/grid'
 import { Lines } from '../line/lines'
 import { useMouseDownEventListeners, useMouseMoveEventListeners } from '../mouse-events/hooks'
+import { Colors } from '../theme'
 import { useLoadScene } from './hooks'
 import { useSceneStore } from './store'
 import { Scene as SceneType } from './types'
@@ -21,7 +22,7 @@ export function Scene({ blueprintRef, initialScene }: SceneProps) {
   useLoadScene(initialScene, blueprintRef)
 
   return (
-    <svg width={width} height={height} style={{ backgroundColor: '#e2e8f0' }}>
+    <svg width={width} height={height} style={{ backgroundColor: Colors.lightGray }}>
       <Grid />
       <Lines />
     </svg>
