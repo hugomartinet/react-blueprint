@@ -1,13 +1,15 @@
 import { useEffect } from 'react'
 import { useStartDrawingLine, useStopDrawingLine } from '../line/hooks'
+import { useMode, useSetDrawMode, useSetIdleMode } from '../mode/hooks'
 import { useModeStore } from '../mode/store'
 import { Mode } from '../mode/types'
 import { useUpdateNodePositions } from '../node/hooks'
 import { getEventPosition } from './utils'
 
 export function useMouseDownEventListeners() {
-  const mode = useModeStore(state => state.mode)
-  const setMode = useModeStore(state => state.setMode)
+  const mode = useMode()
+  const setIdleMode = useSetIdleMode()
+  const setDrawMode = useSetDrawMode()
 
   const startDrawingLine = useStartDrawingLine()
   const stopDrawingLine = useStopDrawingLine()
@@ -15,24 +17,24 @@ export function useMouseDownEventListeners() {
   useEffect(() => {
     function onMouseDown(event: MouseEvent): void {
       if (mode === Mode.IDLE) {
-        setMode(Mode.DRAW)
+        setDrawMode()
         startDrawingLine(getEventPosition(event))
       }
     }
     window.addEventListener('mousedown', onMouseDown)
     return () => window.removeEventListener('mousedown', onMouseDown)
-  }, [mode, setMode, startDrawingLine])
+  }, [mode, setDrawMode, startDrawingLine])
 
   useEffect(() => {
     function onMouseDown(): void {
       if (mode === Mode.DRAW) {
         stopDrawingLine()
-        setMode(Mode.IDLE)
+        setIdleMode()
       }
     }
     window.addEventListener('mousedown', onMouseDown)
     return () => window.removeEventListener('mousedown', onMouseDown)
-  }, [mode, setMode, stopDrawingLine])
+  }, [mode, setIdleMode, stopDrawingLine])
 }
 
 export function useMouseMoveEventListeners() {
@@ -42,7 +44,7 @@ export function useMouseMoveEventListeners() {
 
   useEffect(() => {
     function onMouseMove(event: MouseEvent) {
-      if (mode === Mode.DRAW) {
+      if (mode === Mode.IDLE || mode === Mode.DRAW) {
         updateNodePosition(getEventPosition(event))
       }
     }

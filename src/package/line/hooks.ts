@@ -1,54 +1,38 @@
 import { useCallback } from 'react'
 import { Position } from '../geometry/types'
 import { useMonitorStore } from '../monitor/store'
+import { useFreezeSelectedNodePosition } from '../node/hooks'
 import { useNodeStore } from '../node/store'
-import { getCloseByNode } from '../node/utils'
 import { useSnapStore } from '../snap/store'
 import { useLineStore } from './store'
 
 export function useStartDrawingLine() {
-  const nodes = useNodeStore(state => state.nodes)
   const createNode = useNodeStore(state => state.createNode)
-  const lines = useLineStore(state => state.lines)
   const createLine = useLineStore(state => state.createLine)
 
-  const setSelectedNodeIds = useMonitorStore(state => state.setSelectedNodeIds)
-  const initSnaps = useSnapStore(state => state.initSnaps)
+  const freezeSelectedNodePosition = useFreezeSelectedNodePosition()
+  const setSelectedNodeId = useMonitorStore(state => state.setSelectedNodeId)
 
   return useCallback(
     (position: Position) => {
-      const node0 = getCloseByNode(position, nodes) ?? createNode(position)
+      const node0 = freezeSelectedNodePosition()
+      if (!node0) return // TODO handle this case
       const node1 = createNode(position)
       createLine([node0.id, node1.id])
-      setSelectedNodeIds([node1.id])
-      initSnaps(nodes, lines)
+      setSelectedNodeId(node1.id)
     },
-    [nodes, lines, createNode, createLine, setSelectedNodeIds, initSnaps],
+    [freezeSelectedNodePosition, createNode, createLine, setSelectedNodeId],
   )
 }
 
 export function useStopDrawingLine() {
-  const nodes = useNodeStore(state => state.nodes)
-  const deleteNode = useNodeStore(state => state.deleteNode)
-  const replaceNodeIdInLines = useLineStore(state => state.replaceNodeIdInLines)
-
-  const selectedNodeIds = useMonitorStore(state => state.selectedNodeIds)
-  const setSelectedNodeIds = useMonitorStore(state => state.setSelectedNodeIds)
-
+  const freezeSelectedNodePosition = useFreezeSelectedNodePosition()
+  const setSelectedNodeId = useMonitorStore(state => state.setSelectedNodeId)
   const setActiveSnaps = useSnapStore(state => state.setActiveSnaps)
 
   return useCallback(() => {
-    const nonSelectedNodes = nodes.filter(node => !selectedNodeIds.includes(node.id))
-    selectedNodeIds.forEach(nodeId => {
-      const node = nodes.find(node => node.id === nodeId)
-      if (!node) return // TODO handle this case
-      const closeByNode = getCloseByNode(node.position, nonSelectedNodes)
-      if (closeByNode) {
-        replaceNodeIdInLines(node.id, closeByNode.id)
-        deleteNode(node.id)
-      }
-    })
-    setSelectedNodeIds([])
+    freezeSelectedNodePosition()
+    setSelectedNodeId(undefined)
     setActiveSnaps([])
-  }, [nodes, deleteNode, replaceNodeIdInLines, selectedNodeIds, setSelectedNodeIds, setActiveSnaps])
+  }, [freezeSelectedNodePosition, setSelectedNodeId, setActiveSnaps])
 }
