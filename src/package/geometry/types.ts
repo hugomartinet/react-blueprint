@@ -4,6 +4,7 @@ export interface Position {
 }
 
 export interface LineCoefficients {
-  m: number
+  a: number
   b: number
+  c: number
 }

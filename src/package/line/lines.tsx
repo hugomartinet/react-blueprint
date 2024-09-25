@@ -1,6 +1,7 @@
 import { useNodeStore } from '../node/store'
 import { Colors } from '../theme'
 import { useLineStore } from './store'
+import { getLineNodes } from './utils'
 
 export function Lines() {
   const lines = useLineStore(state => state.lines)
@@ -9,9 +10,7 @@ export function Lines() {
   return (
     <>
       {lines.map(line => {
-        const node0 = nodes.find(node => node.id === line.nodeIds[0])
-        const node1 = nodes.find(node => node.id === line.nodeIds[1])
-        if (!node0 || !node1) return
+        const [node0, node1] = getLineNodes(line, nodes)
         return (
           <line
             key={line.id}

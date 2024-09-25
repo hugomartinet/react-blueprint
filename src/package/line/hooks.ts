@@ -3,16 +3,17 @@ import { Position } from '../geometry/types'
 import { useMonitorStore } from '../monitor/store'
 import { useNodeStore } from '../node/store'
 import { getCloseByNode } from '../node/utils'
-import { useInitSnaps } from '../snap/hooks'
+import { useSnapStore } from '../snap/store'
 import { useLineStore } from './store'
 
 export function useStartDrawingLine() {
   const nodes = useNodeStore(state => state.nodes)
   const createNode = useNodeStore(state => state.createNode)
+  const lines = useLineStore(state => state.lines)
   const createLine = useLineStore(state => state.createLine)
 
   const setSelectedNodeIds = useMonitorStore(state => state.setSelectedNodeIds)
-  const initSnaps = useInitSnaps()
+  const initSnaps = useSnapStore(state => state.initSnaps)
 
   return useCallback(
     (position: Position) => {
@@ -20,9 +21,9 @@ export function useStartDrawingLine() {
       const node1 = createNode(position)
       createLine([node0.id, node1.id])
       setSelectedNodeIds([node1.id])
-      initSnaps()
+      initSnaps(nodes, lines)
     },
-    [nodes, createNode, createLine, setSelectedNodeIds, initSnaps],
+    [nodes, lines, createNode, createLine, setSelectedNodeIds, initSnaps],
   )
 }
 
@@ -33,6 +34,8 @@ export function useStopDrawingLine() {
 
   const selectedNodeIds = useMonitorStore(state => state.selectedNodeIds)
   const setSelectedNodeIds = useMonitorStore(state => state.setSelectedNodeIds)
+
+  const setActiveSnaps = useSnapStore(state => state.setActiveSnaps)
 
   return useCallback(() => {
     const nonSelectedNodes = nodes.filter(node => !selectedNodeIds.includes(node.id))
@@ -46,5 +49,6 @@ export function useStopDrawingLine() {
       }
     })
     setSelectedNodeIds([])
-  }, [nodes, deleteNode, replaceNodeIdInLines, selectedNodeIds, setSelectedNodeIds])
+    setActiveSnaps([])
+  }, [nodes, deleteNode, replaceNodeIdInLines, selectedNodeIds, setSelectedNodeIds, setActiveSnaps])
 }
