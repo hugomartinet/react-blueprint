@@ -1,5 +1,6 @@
 import { useModeStore } from './package/mode/store'
 import { Mode } from './package/mode/types'
+import { Colors } from './package/theme'
 
 export function Controls() {
   const mode = useModeStore(state => state.mode)
@@ -12,7 +13,7 @@ export function Controls() {
         justifyContent: 'start',
         gap: 8,
         alignItems: 'center',
-        background: '#4299E1',
+        background: Colors.blue,
         padding: 10,
       }}
     >

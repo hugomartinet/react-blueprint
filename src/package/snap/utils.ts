@@ -1,33 +1,41 @@
+import { nanoid } from 'nanoid'
 import { getDistanceBetweenPositions, getClosestPositionOnLine } from '../geometry/distance'
 import { Position } from '../geometry/types'
+import { Line } from '../line/types'
+import { getLineNodes } from '../line/utils'
 import { Node } from '../node/types'
-import { isLineSnap, isNodeSnap, NodeSnap, Snap } from './types'
+import { isLineSnap, isNodeSnap, LineSnap, NodeSnap, Snap } from './types'
 
 export function calculateNodeSnaps(nodes: Node[]): NodeSnap[] {
-  return nodes.map(node => ({ priority: 1, position: node.position, radius: 10 }))
+  return nodes.map(node => ({ id: nanoid(), priority: 2, distance: 10, isActive: false, position: node.position }))
 }
 
-export function getCloseByPosition(position: Position, snap: Snap): Position | undefined {
-  if (isNodeSnap(snap)) {
-    if (getDistanceBetweenPositions(position, snap.position) <= snap.radius) return snap.position
-  }
-  if (isLineSnap(snap)) {
-    const closestPosition = getClosestPositionOnLine(position, snap.coefficients)
-    if (getDistanceBetweenPositions(position, closestPosition) <= snap.distance) return closestPosition
-  }
+export function calculateLineSnaps(lines: Line[], nodes: Node[]): LineSnap[] {
+  return lines.map(line => {
+    const [node0, node1] = getLineNodes(line, nodes)
+    const [x0, y0, x1, y1] = [node0.position.x, node0.position.y, node1.position.x, node1.position.y]
+    const a = y1 - y0
+    const b = -(x1 - x0)
+    const c = (x1 - x0) * y0 - (y1 - y0) * x0
+    return { id: nanoid(), priority: 1, distance: 10, isActive: false, coefficients: { a, b, c } }
+  })
 }
 
-export function findClosestSnapPosition(position: Position, snaps: Snap[]): Position | undefined {
-  let closestSnap: Snap | undefined
-  let closestSnapPosition: Position | undefined
-  for (const snap of snaps) {
-    const closeByPosition = getCloseByPosition(position, snap)
-    if (closeByPosition) {
-      if (!closestSnap || snap.priority > closestSnap.priority || snap.priority) {
-        closestSnap = snap
-        closestSnapPosition = closeByPosition
-      }
-    }
-  }
-  return closestSnapPosition
+export function getClosestPosition(position: Position, snap: Snap): Position | undefined {
+  if (isNodeSnap(snap)) return snap.position
+  if (isLineSnap(snap)) return getClosestPositionOnLine(position, snap.coefficients)
+}
+
+export function getActiveSnaps(position: Position, snaps: Snap[]): Snap[] {
+  return snaps.filter(snap => {
+    const closestPosition = getClosestPosition(position, snap)
+    return closestPosition && getDistanceBetweenPositions(position, closestPosition) <= snap.distance
+  })
+}
+
+export function getPrioritySnap(snaps: Snap[]): Snap | undefined {
+  return snaps.reduce<Snap | undefined>(
+    (priority, current) => (priority && priority.priority > current.priority ? priority : current),
+    undefined,
+  )
 }
