@@ -1,8 +1,6 @@
 import { useCallback } from 'react'
-import { useLineStore } from '../line/store'
-import { useMonitorStore } from '../monitor/store'
 import { useNodeStore } from '../node/store'
-import { useSnapStore } from '../snap/store'
+import { useInitSnaps } from '../snap/hooks'
 import { useModeStore } from './store'
 import { Mode } from './types'
 
@@ -18,19 +16,17 @@ export function useSetSelectMode() {
 export function useSetIdleMode() {
   const setMode = useModeStore(state => state.setMode)
 
-  const nodes = useNodeStore(state => state.nodes)
-  const lines = useLineStore(state => state.lines)
   const createNode = useNodeStore(state => state.createNode)
 
-  const setSelectedNodeId = useMonitorStore(state => state.setSelectedNodeId)
-  const initSnaps = useSnapStore(state => state.initSnaps)
+  const setSelectedNodeId = useNodeStore(state => state.setSelectedNodeId)
+  const initSnaps = useInitSnaps()
 
   return useCallback(() => {
     setMode(Mode.IDLE)
     const node = createNode({ x: 0, y: 0 })
     setSelectedNodeId(node.id)
-    initSnaps(nodes, lines)
-  }, [nodes, lines, setMode, createNode, setSelectedNodeId, initSnaps])
+    initSnaps()
+  }, [setMode, createNode, setSelectedNodeId, initSnaps])
 }
 
 export function useSetDrawMode() {

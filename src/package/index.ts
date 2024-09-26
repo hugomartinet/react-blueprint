@@ -8,8 +8,6 @@ export * from './line/types'
 export * from './mode/store'
 export * from './mode/types'
 
-export * from './monitor/store'
-
 export * from './node/store'
 export * from './node/types'
 

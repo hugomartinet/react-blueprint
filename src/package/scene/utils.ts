@@ -1,8 +1,6 @@
 import { Scene } from './types'
 
-export function calculateCenteredView(scene?: Scene, blueprintWidth?: number, blueprintHeight?: number) {
-  if (!scene || scene.nodes.length < 2 || !blueprintWidth || !blueprintHeight) return undefined
-
+export function calculateCenteredView(scene: Scene, blueprintWidth: number, blueprintHeight: number) {
   const minX = Math.min(...scene.nodes.map(node => node.position.x)) - 100
   const minY = Math.min(...scene.nodes.map(node => node.position.y)) - 100
   const maxX = Math.max(...scene.nodes.map(node => node.position.x)) + 100

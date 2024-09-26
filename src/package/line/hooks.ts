@@ -1,6 +1,5 @@
 import { useCallback } from 'react'
 import { Position } from '../geometry/types'
-import { useMonitorStore } from '../monitor/store'
 import { useFreezeSelectedNodePosition } from '../node/hooks'
 import { useNodeStore } from '../node/store'
 import { useSnapStore } from '../snap/store'
@@ -11,7 +10,7 @@ export function useStartDrawingLine() {
   const createLine = useLineStore(state => state.createLine)
 
   const freezeSelectedNodePosition = useFreezeSelectedNodePosition()
-  const setSelectedNodeId = useMonitorStore(state => state.setSelectedNodeId)
+  const setSelectedNodeId = useNodeStore(state => state.setSelectedNodeId)
 
   return useCallback(
     (position: Position) => {
@@ -27,12 +26,12 @@ export function useStartDrawingLine() {
 
 export function useStopDrawingLine() {
   const freezeSelectedNodePosition = useFreezeSelectedNodePosition()
-  const setSelectedNodeId = useMonitorStore(state => state.setSelectedNodeId)
-  const setActiveSnaps = useSnapStore(state => state.setActiveSnaps)
+  const setSelectedNodeId = useNodeStore(state => state.setSelectedNodeId)
+  const setSnaps = useSnapStore(state => state.setSnaps)
 
   return useCallback(() => {
     freezeSelectedNodePosition()
     setSelectedNodeId(undefined)
-    setActiveSnaps([])
-  }, [freezeSelectedNodePosition, setSelectedNodeId, setActiveSnaps])
+    setSnaps([])
+  }, [freezeSelectedNodePosition, setSelectedNodeId, setSnaps])
 }

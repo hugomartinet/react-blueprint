@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid'
-import { getDistanceBetweenPositions, getClosestPositionOnLine } from '../geometry/distance'
 import { Position } from '../geometry/types'
+import { getDistanceBetweenPositions, getClosestPositionOnLine } from '../geometry/utils'
 import { Line } from '../line/types'
 import { getLineNodes } from '../line/utils'
 import { Node } from '../node/types'
@@ -21,21 +21,23 @@ export function calculateLineSnaps(lines: Line[], nodes: Node[]): LineSnap[] {
   })
 }
 
-export function getClosestPosition(position: Position, snap: Snap): Position | undefined {
+export function getSnapClosestPosition(position: Position, snap: Snap): Position | undefined {
   if (isNodeSnap(snap)) return snap.position
   if (isLineSnap(snap)) return getClosestPositionOnLine(position, snap.coefficients)
 }
 
-export function getActiveSnaps(position: Position, snaps: Snap[]): Snap[] {
-  return snaps.filter(snap => {
-    const closestPosition = getClosestPosition(position, snap)
-    return closestPosition && getDistanceBetweenPositions(position, closestPosition) <= snap.distance
+export function activateSnaps(position: Position, snaps: Snap[]): Snap[] {
+  return snaps.map(snap => {
+    const closestPosition = getSnapClosestPosition(position, snap)
+    const isActive = !!closestPosition && getDistanceBetweenPositions(position, closestPosition) <= snap.distance
+    return { ...snap, isActive }
   })
 }
 
 export function getPrioritySnap(snaps: Snap[]): Snap | undefined {
-  return snaps.reduce<Snap | undefined>(
-    (priority, current) => (priority && priority.priority > current.priority ? priority : current),
-    undefined,
-  )
+  return snaps
+    .filter(snap => snap.isActive)
+    .reduce<
+      Snap | undefined
+    >((priority, current) => (priority && priority.priority > current.priority ? priority : current), undefined)
 }

@@ -1,51 +1,52 @@
 import { useCallback } from 'react'
 import { Position } from '../geometry/types'
 import { useLineStore } from '../line/store'
-import { useMonitorStore } from '../monitor/store'
+import { replaceNodeIdInLines } from '../line/utils'
 import { useSnapStore } from '../snap/store'
-import { getActiveSnaps, getClosestPosition, getPrioritySnap } from '../snap/utils'
+import { getSnapClosestPosition, getPrioritySnap, activateSnaps } from '../snap/utils'
 import { useNodeStore } from './store'
 import { getCloseByNode } from './utils'
 
 export function useUpdateNodePositions() {
   const updateNode = useNodeStore(state => state.updateNode)
-  const selectedNodeId = useMonitorStore(state => state.selectedNodeId)
+  const selectedNodeId = useNodeStore(state => state.selectedNodeId)
 
-  const snaps = useSnapStore(state => state.snaps)
-  const setActiveSnaps = useSnapStore(state => state.setActiveSnaps)
+  const setSnaps = useSnapStore(state => state.setSnaps)
 
   return useCallback(
     (position: Position) => {
       if (selectedNodeId) {
-        const activeSnaps = getActiveSnaps(position, snaps)
-        setActiveSnaps(activeSnaps)
-        const prioritySnap = getPrioritySnap(activeSnaps)
-        const prioriySnapPosition = prioritySnap && getClosestPosition(position, prioritySnap)
+        const snaps = useSnapStore.getState().snaps
+        const activatedSnaps = activateSnaps(position, snaps)
+        setSnaps(activatedSnaps)
+        const prioritySnap = getPrioritySnap(activatedSnaps)
+        const prioriySnapPosition = prioritySnap && getSnapClosestPosition(position, prioritySnap)
         updateNode(selectedNodeId, prioriySnapPosition ?? position)
       }
     },
-    [selectedNodeId, updateNode, snaps, setActiveSnaps],
+    [selectedNodeId, updateNode, setSnaps],
   )
 }
 
 export function useFreezeSelectedNodePosition() {
-  const nodes = useNodeStore(state => state.nodes)
-  const selectedNodeId = useMonitorStore(state => state.selectedNodeId)
-
   const deleteNode = useNodeStore(state => state.deleteNode)
-  const replaceNodeIdInLines = useLineStore(state => state.replaceNodeIdInLines)
+  const selectedNodeId = useNodeStore(state => state.selectedNodeId)
+
+  const setLines = useLineStore(state => state.setLines)
 
   return useCallback(() => {
+    const nodes = useNodeStore.getState().nodes
+    const lines = useLineStore.getState().lines
     const node = nodes.find(node => node.id === selectedNodeId)
     if (node) {
       const nonSelectedNodes = nodes.filter(node => selectedNodeId !== node.id)
       const closeByNode = getCloseByNode(node.position, nonSelectedNodes)
       if (closeByNode) {
-        replaceNodeIdInLines(node.id, closeByNode.id)
+        setLines(replaceNodeIdInLines(lines, node.id, closeByNode.id))
         deleteNode(node.id)
         return closeByNode
       }
       return node
     }
-  }, [selectedNodeId, nodes, replaceNodeIdInLines, deleteNode])
+  }, [selectedNodeId, setLines, deleteNode])
 }

@@ -9,6 +9,8 @@ interface NodeStore {
   createNode: (position: Position) => Node
   updateNode: (id: string, position: Position) => void
   deleteNode: (id: string) => void
+  selectedNodeId: string | undefined
+  setSelectedNodeId: (nodeId: string | undefined) => void
 }
 
 export const useNodeStore = create<NodeStore>(set => ({
@@ -21,6 +23,8 @@ export const useNodeStore = create<NodeStore>(set => ({
   },
   updateNode: (id, position) => set(state => ({ nodes: updateNodePosition(id, position, state.nodes) })),
   deleteNode: id => set(state => ({ nodes: state.nodes.filter(node => node.id !== id) })),
+  selectedNodeId: undefined,
+  setSelectedNodeId: nodeId => set({ selectedNodeId: nodeId }),
 }))
 
 function initNode(position: Position): Node {

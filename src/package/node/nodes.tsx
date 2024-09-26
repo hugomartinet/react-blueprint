@@ -1,10 +1,9 @@
-import { useMonitorStore } from '../monitor/store'
 import { Colors } from '../theme'
 import { useNodeStore } from './store'
 
 export function Nodes() {
   const nodes = useNodeStore(state => state.nodes)
-  const selectedNodeId = useMonitorStore(state => state.selectedNodeId)
+  const selectedNodeId = useNodeStore(state => state.selectedNodeId)
   return (
     <>
       {nodes

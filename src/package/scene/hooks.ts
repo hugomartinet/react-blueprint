@@ -7,7 +7,7 @@ import { Scene } from './types'
 import { calculateCenteredView } from './utils'
 
 export function useLoadScene(scene: Scene | undefined, blueprintRef: MutableRefObject<HTMLDivElement | null>) {
-  const setScene = useSceneStore(state => state.setScene)
+  const setScene = useSceneStore(state => state.setDimensions)
   const setNodes = useNodeStore(state => state.setNodes)
   const setLines = useLineStore(state => state.setLines)
 
@@ -21,11 +21,13 @@ export function useLoadScene(scene: Scene | undefined, blueprintRef: MutableRefO
   }, [])
 
   useTransformInit(ref => {
-    const transformState = calculateCenteredView(
-      scene,
-      blueprintRef.current?.offsetWidth,
-      blueprintRef.current?.offsetHeight,
-    )
-    if (transformState) ref.instance.setTransformState(transformState.scale, transformState.x, transformState.y)
+    if (scene && blueprintRef.current) {
+      const transformState = calculateCenteredView(
+        scene,
+        blueprintRef.current?.offsetWidth,
+        blueprintRef.current?.offsetHeight,
+      )
+      ref.instance.setTransformState(transformState.scale, transformState.x, transformState.y)
+    }
   })
 }

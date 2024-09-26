@@ -1,5 +1,5 @@
-import { getDistanceBetweenPositions } from '../geometry/distance'
 import { Position } from '../geometry/types'
+import { getDistanceBetweenPositions } from '../geometry/utils'
 import { Node } from './types'
 
 export function getCloseByNode(position: Position, nodes: Node[]): Node | undefined {
