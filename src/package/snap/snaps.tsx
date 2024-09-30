@@ -1,3 +1,4 @@
+import { useShallow } from 'zustand/react/shallow'
 import { LineCoefficients, Position } from '../geometry/types'
 import { useSceneStore } from '../scene/store'
 import { Colors } from '../theme'
@@ -5,19 +6,17 @@ import { useSnapStore } from './store'
 import { isLineSnap, isNodeSnap } from './types'
 
 export function Snaps() {
-  const snaps = useSnapStore(state => state.snaps)
+  const activeSnaps = useSnapStore(useShallow(state => state.activeSnaps))
   const width = useSceneStore(state => state.width)
   const height = useSceneStore(state => state.height)
 
   return (
     <>
-      {snaps
-        .filter(snap => snap.isActive)
-        .map(snap => {
-          if (isNodeSnap(snap)) return <NodeSnap key={snap.id} position={snap.position} />
-          if (isLineSnap(snap))
-            return <LineSnap key={snap.id} coefficients={snap.coefficients} width={width} height={height} />
-        })}
+      {activeSnaps.map(snap => {
+        if (isNodeSnap(snap)) return <NodeSnap key={snap.id} position={snap.position} />
+        if (isLineSnap(snap))
+          return <LineSnap key={snap.id} coefficients={snap.coefficients} width={width} height={height} />
+      })}
     </>
   )
 }

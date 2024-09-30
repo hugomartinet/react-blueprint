@@ -1,11 +1,12 @@
+import { useShallow } from 'zustand/react/shallow'
 import { useNodeStore } from '../node/store'
 import { Colors } from '../theme'
 import { useLineStore } from './store'
 import { getLineNodes } from './utils'
 
 export function Lines() {
-  const lines = useLineStore(state => state.lines)
-  const nodes = useNodeStore(state => state.nodes)
+  const lines = useLineStore(useShallow(state => state.lines))
+  const nodes = useNodeStore(useShallow(state => state.nodes))
 
   return (
     <>

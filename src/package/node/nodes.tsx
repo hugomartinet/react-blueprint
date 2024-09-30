@@ -1,9 +1,10 @@
+import { useShallow } from 'zustand/react/shallow'
 import { Colors } from '../theme'
 import { useNodeStore } from './store'
 
 export function Nodes() {
-  const nodes = useNodeStore(state => state.nodes)
-  const selectedNodeId = useNodeStore(state => state.selectedNodeId)
+  const nodes = useNodeStore(useShallow(state => state.nodes))
+  const selectedNodeId = useNodeStore(useShallow(state => state.selectedNodeId))
   return (
     <>
       {nodes

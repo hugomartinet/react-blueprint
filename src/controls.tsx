@@ -1,11 +1,12 @@
-import { useMode, useSetIdleMode, useSetSelectMode } from './package/mode/hooks'
+import { useWaitForDrawingLine } from './package/line/hooks'
+import { useMode, useSetSelectMode } from './package/mode/hooks'
 import { Mode } from './package/mode/types'
 import { Colors } from './package/theme'
 
 export function Controls() {
   const mode = useMode()
   const setSelectMode = useSetSelectMode()
-  const setIdleMode = useSetIdleMode()
+  const waitForDrawingLine = useWaitForDrawingLine()
 
   return (
     <div
@@ -21,7 +22,7 @@ export function Controls() {
       <button onClick={() => setSelectMode()} disabled={mode === Mode.SELECT}>
         Select
       </button>
-      <button onClick={() => setIdleMode()} disabled={mode === Mode.IDLE || mode === Mode.DRAW}>
+      <button onClick={() => waitForDrawingLine()} disabled={mode === Mode.IDLE || mode === Mode.DRAW}>
         Draw line
       </button>
     </div>
