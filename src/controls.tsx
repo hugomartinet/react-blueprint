@@ -1,4 +1,4 @@
-import { useStartAdjustingBackground } from './package/background/hooks'
+import { useBackgroundScaleInputProps, useStartAdjustingBackground } from './package/background/hooks'
 import { useWaitForDrawingLine } from './package/line/hooks'
 import { useMode, useSetSelectMode } from './package/mode/hooks'
 import { isBackgroundMode, Mode } from './package/mode/types'
@@ -7,8 +7,10 @@ import { Colors } from './package/theme'
 export function Controls() {
   const mode = useMode()
   const setSelectMode = useSetSelectMode()
-  const startAdjustingBackground = useStartAdjustingBackground()
   const waitForDrawingLine = useWaitForDrawingLine()
+
+  const startAdjustingBackground = useStartAdjustingBackground()
+  const { inputProps, onSubmit } = useBackgroundScaleInputProps()
 
   return (
     <div
@@ -30,6 +32,19 @@ export function Controls() {
       <button onClick={() => startAdjustingBackground()} disabled={isBackgroundMode(mode)}>
         Adjust background
       </button>
+      {mode === Mode.FINISH_ADJUSTING_BACKGROUND && (
+        <>
+          <input {...inputProps} />
+          <button
+            onClick={() => {
+              onSubmit()
+              setSelectMode()
+            }}
+          >
+            Apply background scale
+          </button>
+        </>
+      )}
     </div>
   )
 }

@@ -1,5 +1,6 @@
-import { MutableRefObject, useCallback, useEffect } from 'react'
+import { ChangeEvent, MutableRefObject, useCallback, useEffect, useState } from 'react'
 import { Dimensions } from '../geometry/types'
+import { getDistanceBetweenPositions } from '../geometry/utils'
 import { useModeStore } from '../mode/store'
 import { Mode } from '../mode/types'
 import { getEventPosition } from '../mouse-events/utils'
@@ -64,4 +65,27 @@ export function useAdjustBackgroundMouseEventListeners() {
       window.removeEventListener('mousemove', onMouseMove)
     }
   }, [setMode, setAdjustingNodes])
+}
+
+export function useBackgroundScaleInputProps() {
+  const setDimensions = useBackgroundStore(state => state.setDimensions)
+
+  const [value, setValue] = useState(0)
+  const onChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => setValue(Number(event.target.value)),
+    [setValue],
+  )
+
+  const onSubmit = useCallback(() => {
+    const dimensions = useBackgroundStore.getState().dimensions
+    const adjustingNodes = useBackgroundStore.getState().adjustingNodes
+    if (!dimensions || !adjustingNodes[0] || !adjustingNodes[1]) return
+    const distanceBetweenNodes = getDistanceBetweenPositions(adjustingNodes[0].position, adjustingNodes[1].position)
+    const width = (value * dimensions.width) / distanceBetweenNodes
+    const height = (value * dimensions.height) / distanceBetweenNodes
+    setDimensions({ width, height })
+    return { width, height }
+  }, [value, setDimensions])
+
+  return { inputProps: { value, onChange }, onSubmit }
 }
