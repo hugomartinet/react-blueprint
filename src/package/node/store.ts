@@ -27,7 +27,7 @@ export const useNodeStore = create<NodeStore>(set => ({
   setSelectedNodeId: nodeId => set({ selectedNodeId: nodeId }),
 }))
 
-function initNode(position: Position): Node {
+export function initNode(position: Position): Node {
   return { id: nanoid(), position }
 }
 

@@ -8,7 +8,5 @@ export function useMode() {
 
 export function useSetSelectMode() {
   const setMode = useModeStore(state => state.setMode)
-  return useCallback(() => {
-    setMode(Mode.SELECT)
-  }, [setMode])
+  return useCallback(() => setMode(Mode.SELECT), [setMode])
 }
