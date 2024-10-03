@@ -24,8 +24,8 @@ export function Scene({ initialScene, background, blueprintRef }: SceneProps) {
   const width = useSceneStore(state => state.width)
   const height = useSceneStore(state => state.height)
 
-  useMouseDownEventListeners()
-  useMouseMoveEventListeners()
+  useMouseDownEventListeners(blueprintRef)
+  useMouseMoveEventListeners(blueprintRef)
 
   useLoadScene(initialScene, blueprintRef)
 

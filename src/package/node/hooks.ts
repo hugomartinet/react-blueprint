@@ -5,7 +5,7 @@ import { replaceNodeIdInLines } from '../line/utils'
 import { useSnapStore } from '../snap/store'
 import { getSnapClosestPosition, getPrioritySnap, activateSnaps } from '../snap/utils'
 import { useNodeStore } from './store'
-import { getCloseByNode } from './utils'
+import { getCloseByNode, getUnusedNodeIds } from './utils'
 
 export function useUpdateNodePositions() {
   const updateNode = useNodeStore(state => state.updateNode)
@@ -49,4 +49,19 @@ export function useFreezeSelectedNodePosition() {
       return node
     }
   }, [selectedNodeId, setLines, deleteNode])
+}
+
+export function useCleanupNodes() {
+  const setNodes = useNodeStore(state => state.setNodes)
+  const setSelectedNodeId = useNodeStore(state => state.setSelectedNodeId)
+
+  return useCallback(() => {
+    const nodes = useNodeStore.getState().nodes
+    const lines = useLineStore.getState().lines
+    const nodeIdsToRemove = getUnusedNodeIds(nodes, lines)
+    setNodes(nodes.filter(node => !nodeIdsToRemove.includes(node.id)))
+
+    const selectedNodeId = useNodeStore.getState().selectedNodeId
+    if (selectedNodeId && nodeIdsToRemove.includes(selectedNodeId)) setSelectedNodeId(undefined)
+  }, [setNodes, setSelectedNodeId])
 }

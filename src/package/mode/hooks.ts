@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { useCleanupNodes } from '../node/hooks'
 import { useModeStore } from './store'
 import { Mode } from './types'
 
@@ -8,5 +9,9 @@ export function useMode() {
 
 export function useSetSelectMode() {
   const setMode = useModeStore(state => state.setMode)
-  return useCallback(() => setMode(Mode.SELECT), [setMode])
+  const cleanupNodes = useCleanupNodes()
+  return useCallback(() => {
+    setMode(Mode.SELECT)
+    cleanupNodes()
+  }, [setMode, cleanupNodes])
 }

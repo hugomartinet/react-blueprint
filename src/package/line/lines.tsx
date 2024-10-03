@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { Ruler } from '../geometry/ruler'
 import { useNodeStore } from '../node/store'
@@ -15,9 +16,8 @@ export function Lines() {
       {lines.map(line => {
         const [node0, node1] = getLineNodes(line, nodes)
         return (
-          <>
+          <Fragment key={line.id}>
             <line
-              key={line.id}
               stroke={Colors.gray}
               strokeWidth={2}
               x1={node0.position.x}
@@ -26,7 +26,7 @@ export function Lines() {
               y2={node1.position.y}
             />
             {(selectedNodeId === node0.id || selectedNodeId === node1.id) && <Ruler nodes={[node0, node1]} />}
-          </>
+          </Fragment>
         )
       })}
     </>
